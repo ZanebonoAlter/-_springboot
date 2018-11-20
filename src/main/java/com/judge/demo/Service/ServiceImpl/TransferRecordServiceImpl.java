@@ -455,6 +455,11 @@ public class TransferRecordServiceImpl implements TransferRecordService {
     }
 
     @Override
+    public Set<String> getZhifubaoIdsByName(String name) {
+        return transferRecordMapper.getZhifubaoIdsByName(name);
+    }
+
+    @Override
     public List<TransferRecord> getDateBetween(Date beginDate, Date endDate, Integer pageIndex, Integer pageSize) {
         TransferRecordExample example = new TransferRecordExample();
         example.setLimitStart(pageIndex);

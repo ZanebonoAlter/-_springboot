@@ -512,24 +512,28 @@
         <!--from transfer_record-->
   <!--</select>-->
   <select id="selectMutiZhifubaoWithName" resultType="java.util.Map">
-    select sum(num),name FROM(
-select  count(distinct transfer_record_collection_zhifubao,transfer_record_collection_name) as num,transfer_record_collection_name as name
-      from transfer_record where transfer_record_collection_name like #{name} GROUP BY transfer_record_collection_name
+    select count(DISTINCT id),name FROM(
+select  count(distinct transfer_record_collection_zhifubao_id,transfer_record_collection_name) as num,transfer_record_collection_name as name,transfer_record_collection_zhifubao_id as id
+      from transfer_record where transfer_record_collection_name like #{name}
+			GROUP BY transfer_record_collection_name,transfer_record_collection_zhifubao_id
 UNION ALL
-select  count(distinct transfer_record_pay_zhifubao,transfer_record_pay_name),transfer_record_pay_name
-        from transfer_record where transfer_record_pay_name like #{name} GROUP BY transfer_record_pay_name
-) as temp GROUP BY name having sum(num)>1
+select  count(distinct transfer_record_pay_zhifubao_id,transfer_record_pay_name)as num,transfer_record_pay_name as name,transfer_record_pay_zhifubao_id
+        from transfer_record where transfer_record_pay_name like #{name}
+				GROUP BY transfer_record_pay_name,transfer_record_pay_zhifubao_id
+) as temp where name!='null' and name!='\\N' GROUP BY name having count(DISTINCT id)>1
     limit #{pageIndex},#{pageSize}
   </select>
   <select id="selectMutiZhifubaoCountWithName" resultType="java.lang.Integer">
 select count(*) FROM(
-    select sum(num),name FROM(
-select  count(distinct transfer_record_collection_zhifubao,transfer_record_collection_name) as num,transfer_record_collection_name as name
-      from transfer_record where transfer_record_collection_name like #{name} GROUP BY transfer_record_collection_name
+    select count(DISTINCT id),name FROM(
+select  count(distinct transfer_record_collection_zhifubao_id,transfer_record_collection_name) as num,transfer_record_collection_name as name,transfer_record_collection_zhifubao_id as id
+      from transfer_record where transfer_record_collection_name like #{name}
+			GROUP BY transfer_record_collection_name,transfer_record_collection_zhifubao_id
 UNION ALL
-select  count(distinct transfer_record_pay_zhifubao,transfer_record_pay_name),transfer_record_pay_name
-        from transfer_record where transfer_record_pay_name like #{name} GROUP BY transfer_record_pay_name
-) as temp GROUP BY name having sum(num)>1
+select  count(distinct transfer_record_pay_zhifubao_id,transfer_record_pay_name)as num,transfer_record_pay_name as name,transfer_record_pay_zhifubao_id
+        from transfer_record where transfer_record_pay_name like #{name}
+				GROUP BY transfer_record_pay_name,transfer_record_pay_zhifubao_id
+) as temp where name!='null' and name!='\\N' GROUP BY name having count(DISTINCT id)>1
 ) as temp2
   </select>
   <select id="selectRelativeNameList" resultType="java.lang.String">
@@ -539,6 +543,13 @@ where transfer_record_collection_name = #{names} and transfer_record_pay_name!=#
 UNION ALL
 select transfer_record_collection_name as name from transfer_record
 where transfer_record_pay_name = #{names} and transfer_record_collection_name!=#{names}
-)as temp
+)as temp where name!='null'
+  </select>
+  <select id="getZhifubaoIdsByName" resultType="java.lang.String">
+    select DISTINCT id from(
+select transfer_record_collection_zhifubao_id as id from transfer_record where transfer_record_collection_name=#{name}
+UNION ALL
+select transfer_record_pay_zhifubao_id from transfer_record where transfer_record_pay_name=#{name}
+) as temp
   </select>
 </mapper>

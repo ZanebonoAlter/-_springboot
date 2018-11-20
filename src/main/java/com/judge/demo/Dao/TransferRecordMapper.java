@@ -118,4 +118,5 @@ public interface TransferRecordMapper {
     Integer selectCountInByName(@Param("name")String name);
 
    Set<String> selectRelativeNameList(@Param("names")String name);
+   Set<String> getZhifubaoIdsByName(@Param("name")String name);
 }

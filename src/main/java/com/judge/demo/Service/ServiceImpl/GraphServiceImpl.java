@@ -189,6 +189,9 @@ public class GraphServiceImpl implements GraphService {
             if(set.contains(source+","+target)||set.contains(target+","+source)){
                 continue;
             }
+            //遇到null就跳过
+            if(source.equals("null")||target.equals("null"))
+                continue;
             set.add(source+","+target);
         }
         //制作关系的集合

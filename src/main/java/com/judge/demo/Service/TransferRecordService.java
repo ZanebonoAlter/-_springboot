@@ -51,6 +51,8 @@ public interface TransferRecordService {
     List<String> getMulitiZhifubaoNameList();
     List<String> getMulitiZhifubaoNameList(Integer pageIndex,Integer pageSize,String query);
     Integer getMulitiZhifubaoNameListCount(String query);
+    //根据名字获取对应的支付宝id
+    Set<String> getZhifubaoIdsByName(String name);
     //获取到指定日期分页查询记录
     List<TransferRecord> getDateBetween(Date beginDate,Date endDate,Integer pageIndex,Integer pageSize);
 

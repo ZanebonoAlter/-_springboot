@@ -181,6 +181,10 @@ public class TransferRecordController {
         Map<String, Set<String>> all = new HashMap<>();
 
         for (String s : nodeList) {
+            //删除null节点
+            if (s.equals("null")){
+                continue;
+            }
             Set<String> set = transferRecordService.selectRelativeName(s);
             for (String temp : nodeList) {//不包含一层节点嫌疑人
                 if (set.contains(temp))
@@ -188,7 +192,8 @@ public class TransferRecordController {
             }
             all.put(s, set);
         }
-
+        //删除null
+        nodeList.remove("null");
         TreeSet<String> list = new TreeSet<>();
         for (Map.Entry<String, Set<String>> entry1 : all.entrySet()) {
             for (Map.Entry<String, Set<String>> entry2 : all.entrySet()) {
@@ -278,13 +283,17 @@ public class TransferRecordController {
         Map<String, Set<String>> first = new TreeMap<>();
         Set<String> haveJudged = new HashSet<>();//已经判断过的第二层姓名，
         for (String name : suspects) {
+            if (name.equals("null")){
+                continue;
+            }
             Set<String> new_set = transferRecordService.selectRelativeName(name);//获取对应关系
             for (String name1 : suspects) {//去除根节点关系
                 new_set.remove(name1);
             }
             first.put(name, new_set);//将每个人以及其对应的关系列表放入,去除和其他根节点关系,放入的是根节点和第一层人物关系集合
-
         }
+        //根节点不能有null
+        suspects.remove("null");
         //二层节点去除根节点关系和父节点关系
         for (Map.Entry<String, Set<String>> entry : first.entrySet()) {
             for (String name : entry.getValue()) {//获取到第二层节点人名
@@ -393,6 +402,9 @@ public class TransferRecordController {
         for (String s : list) {
             JSONObject temp = new JSONObject();
             temp.put("pName", s);
+            //根据名字获取支付宝id
+            Set<String> zhifubaoId = transferRecordService.getZhifubaoIdsByName(s);
+            temp.put("pIds",zhifubaoId);
             result_list.add(temp);
         }
         object.put("list", result_list);
@@ -409,6 +421,9 @@ public class TransferRecordController {
         //custom全是重点人
         for (String name : custom) {//对每个自定义名字遍历
             Set<String> set = transferRecordService.selectRelativeName(name);//获取到所有关系
+            //把关联人中的null去掉
+            set.remove("null");
+
             Set<String> result = new HashSet<>();//筛选后的关系集合
             for (String keyName : custom) {
                 if (set.contains(keyName))//如果name的关系集中有重点人的关系，那么把该重点人加入到关系集合中
@@ -428,8 +443,12 @@ public class TransferRecordController {
         if (custom == null)
             return object;
         //custom全是重点人
+        //这一段是把自定义重点人之间的关系写进去
         for (String name : custom) {//对每个自定义名字遍历
             Set<String> set = transferRecordService.selectRelativeName(name);//获取到所有关系
+            //把关联人中的null去掉
+            set.remove("null");
+
             Set<String> result = new HashSet<>();//筛选后的关系集合
             for (String keyName : custom) {
                 if (set.contains(keyName))//如果name的关系集中有重点人的关系，那么把该重点人加入到关系集合中
@@ -443,6 +462,9 @@ public class TransferRecordController {
 
         for (String s : custom) {
             Set<String> set = transferRecordService.selectRelativeName(s);
+            //把关联人中的null去掉
+            set.remove("null");
+
             for (String temp : custom) {//不包含一层节点嫌疑人
                 if (set.contains(temp))
                     set.remove(temp);
@@ -467,6 +489,9 @@ public class TransferRecordController {
         Set<String> result_name = new HashSet<>();//筛选
         for (String s : list) {//所有一级
             Set<String> allRelative = transferRecordService.selectRelativeName(s);
+            //删除null
+            allRelative.remove("null");
+
             Set<String> result = new HashSet<>();//筛选
             int count = 0;
             for (String name : custom) {

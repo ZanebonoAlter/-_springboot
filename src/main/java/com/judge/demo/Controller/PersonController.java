@@ -207,6 +207,8 @@ public class PersonController {
                 }
             }
         }
+        if(map.containsKey(""))
+            map.remove("");
         Integer count = Person.memory.size();
         List<JSONObject> list = new ArrayList<>();
 
