@@ -487,6 +487,11 @@ public class TransferRecordController {
             }
         }
         Set<String> result_name = new HashSet<>();//筛选
+        //因为节点数量选择会导致显示bug
+        //需要对一层嫌疑人再次进行筛选
+        //需要缓存
+        Map<String, Set<String>> map_first = new HashMap<>();//这个应该是筛选后的结果
+
         for (String s : list) {//所有一级
             Set<String> allRelative = transferRecordService.selectRelativeName(s);
             //删除null
@@ -500,15 +505,29 @@ public class TransferRecordController {
                     result.add(name);
                 }
             }
-            for (String first : list) {//如果和一级之间有关系
-                if (allRelative.contains(first)) {
-                    result.add(first);
-                }
-            }
+            //会导致bug，需要做完筛选后清理关系
+//            for (String first : list) {//如果和一级之间有关系
+//                if (allRelative.contains(first)) {
+//                    result.add(first);
+//                }
+//            }
             if (count >= number) {
-                map.put(s, result);
+                map_first.put(s, result);
                 result_name.add(s);//把筛选的一级人员加进来
             }
+        }
+        //清理一层之间的关系
+        for (Map.Entry<String,Set<String>> entry : map_first.entrySet()){
+            Set<String> allRelative = transferRecordService.selectRelativeName(entry.getKey());//每个一层筛选后的人名的关系
+            Set<String> relea = entry.getValue();
+            for(String name:map_first.keySet()){
+                if(name.equals(entry.getKey()))//除了自己
+                    continue;
+                if(allRelative.contains(name)){//如果有其他一层关联人
+                    relea.add(name);
+                }
+            }
+            map.put(entry.getKey(),relea);//最终的处理结果
         }
         //map:最终的关系了
         JSONObject graph = graphService.graphWith(map);
